@@ -44,6 +44,12 @@ tests/
     └── expected.txt
 ```
 
+Tatt will generate an `actual.txt` alongside each `expected.txt` after being executed.
+The `actual.txt` is the captured stdout from running the command in `command.txt`.
+Tatt will diff `actual.txt` and `expected.txt`.
+If they are identical, then the test "passes."
+If there are any differences, the test will fail and the diff will be printed.
+
 ## Usage
 
 To use, just run `tatt.sh`.
