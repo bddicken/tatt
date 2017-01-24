@@ -49,3 +49,14 @@ tests/
 To use, just run `tatt.sh`.
 See `tatt.sh -h` for details of command-line options.
 
+
+## Testing
+
+Tatt has a default test suite, located in the `./tests`.
+Since tatt itself is a testing framework, we use tatt to test itself.
+To run the tatt tests, just execute:
+
+```
+./tatt.sh
+```
+
