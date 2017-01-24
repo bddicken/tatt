@@ -8,6 +8,9 @@
 TATT stands for "Test All The Things".
 Tatt is a simple framework for end-to-end software testing.
 It was specifically designed for testing student homeworks for my courses, but it is designed to also work well as a general-purpose end-to-end test framework.
+Tatt is particularly good at testing programs that can be easily executed on the command line (via bash, sh, etc.) and whose output is sent to a file and/or stdout.
+This framework is _not_ particularly good for testing visual output, graphics, or web applications.
+If these are your needs, look elsewhere!
 
 
 ## Writing Tests
