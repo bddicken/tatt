@@ -50,6 +50,8 @@ Tatt will diff `actual.txt` and `expected.txt`.
 If they are identical, then the test "passes."
 If there are any differences, the test will fail and the diff will be printed.
 
+See the `tatt/tests` directory for a few example test cases.
+
 ## Usage
 
 To use, just run `tatt.sh`.
