@@ -83,9 +83,11 @@ fi
 if [ "${UPDATE_EXPECTED_FILES}" == "YES" ]; then
     echo "Updating contents of expcted.txt files..."
     for TD in ${TEST_DIRECTORIES} ; do
+        pushd ${TD} &> /dev/null
         if [ -f actual.txt ]; then
             cp actual.txt expected.txt
         fi
+        popd &> /dev/null
     done
     exit 0
 fi
