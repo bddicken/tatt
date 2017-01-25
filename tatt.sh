@@ -1,16 +1,20 @@
 #!/bin/bash
 
-# Initialize our own option variables
+# Initialize our own option and settings variables
 TEST_DIR="./tests"
 EXE_DIR="./"
 SEPARATOR="---------------------"
 CLEAR_ACTUAL_FILES="NO"
 UPDATE_EXPECTED_FILES="NO"
+IGNORE_ORDER="NO"
+EXPECTED=expected.txt
+ACTUAL=actual.txt
 
 #
 # A function that prints out the help message
 #
 show_help() {
+    echo ""
     echo "usage: ./tatt.sh [args]"
     echo ""
     echo "args:"
@@ -19,10 +23,12 @@ show_help() {
     echo "      Default: ${TEST_DIR}"
     echo "  -s  Specify the directory to find the program/script that the tests execute."
     echo "      Default: ${EXE_DIR}"
-    echo "  -c  Run tatt in cleanup mode. In cleanup mode, tatt removes all extraneous expected.txt files."
+    echo "  -c  Run tatt in cleanup mode. In cleanup mode, tatt removes all extraneous ${EXPECTED} files."
     echo "      Cleanup mode does not do any test execution"
-    echo "  -u  Run tatt in update mode. In update mode, tatt updates all expected.txt files with the contents"
-    echo "      Of the corresponding actual.txt files."
+    echo "  -u  Run tatt in update mode. In update mode, tatt updates all ${EXPECTED} files with the contents"
+    echo "      Of the corresponding ${ACTUAL} files."
+    echo "  -o  When testing, ignore the order of lines in the file."
+    echo "      This is accomplished by sorting the expected and actual outputs before comparing"
     echo ""
 }
 
@@ -30,7 +36,7 @@ show_help() {
 # Process command-line arguments
 #
 OPTIND=1
-while getopts "h?t:s:cu" opt; do
+while getopts "h?t:s:cuo" opt; do
     case "$opt" in
     h|\?)
         show_help
@@ -43,6 +49,8 @@ while getopts "h?t:s:cu" opt; do
     c)  CLEAR_ACTUAL_FILES="YES"
         ;;
     u)  UPDATE_EXPECTED_FILES="YES"
+        ;;
+    o)  IGNORE_ORDER="YES"
         ;;
     esac
 done
@@ -72,8 +80,8 @@ fi
 # Run in cleanup mode, if specified by the user
 #
 if [ "${CLEAR_ACTUAL_FILES}" == "YES" ]; then
-    echo "Cleaning up all actual.txt files..."
-    rm -f $( find ${TEST_DIR} | grep "actual.txt" )
+    echo "Cleaning up all ${ACTUAL} files..."
+    rm -f $( find ${TEST_DIR} | grep "${ACTUAL}" )
     exit 0
 fi
 
@@ -84,8 +92,8 @@ if [ "${UPDATE_EXPECTED_FILES}" == "YES" ]; then
     echo "Updating contents of expcted.txt files..."
     for TD in ${TEST_DIRECTORIES} ; do
         pushd ${TD} &> /dev/null
-        if [ -f actual.txt ]; then
-            cp actual.txt expected.txt
+        if [ -f ${ACTUAL} ]; then
+            cp ${ACTUAL} ${EXPECTED}
         fi
         popd &> /dev/null
     done
@@ -96,12 +104,26 @@ fi
 # Run each test
 #
 for TD in ${TEST_DIRECTORIES} ; do
+    
     pushd ${TD} &> /dev/null
+    
     TEST_NAME=$(basename ${TD})
-    PRE_COMMAND=$(cat command.txt)
-    COMMAND=${PRE_COMMAND/COMMAND_BASE_DIR/${EXE_DIR}}
-    ${COMMAND} > actual.txt
-    DIFF=$(diff expected.txt actual.txt) 
+
+    rm ${ACTUAL}
+    while read LINE ; do
+        COMMAND=${LINE/COMMAND_BASE_DIR/${EXE_DIR}}
+        ${COMMAND} >> ${ACTUAL}
+    done < command.txt
+
+    OUTPUT_DUMP_CMD=cat
+    if [ "${IGNORE_ORDER}" == "YES" ]; then
+        OUTPUT_DUMP_CMD=sort
+    fi
+    
+    ${OUTPUT_DUMP_CMD} ${EXPECTED} > /tmp/${EXPECTED}
+    ${OUTPUT_DUMP_CMD} ${ACTUAL} > /tmp/${ACTUAL}
+
+    DIFF=$(diff /tmp/${EXPECTED} /tmp/${ACTUAL}) 
     if [ "${DIFF}" == "" ] 
     then
         echo "Test ${TEST_NAME} passed!"
@@ -110,10 +132,12 @@ for TD in ${TEST_DIRECTORIES} ; do
         echo "${SEPARATOR}"
         echo ""
         echo "${DIFF}"
-        diff -y expected.txt actual.txt
+        diff -y /tmp/${EXPECTED} /tmp/${ACTUAL}
         echo ""
         echo "${SEPARATOR}"
     fi
+    
     popd &> /dev/null
+
 done
 
