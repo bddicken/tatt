@@ -113,7 +113,7 @@ for TD in ${TEST_DIRECTORIES} ; do
     
     TEST_NAME=$(basename ${TD})
 
-    rm ${ACTUAL}
+    rm -f ${ACTUAL}
     while read LINE ; do
         COMMAND=${LINE/COMMAND_BASE_DIR/${EXE_DIR}}
         ${COMMAND} >> ${ACTUAL}
