@@ -7,6 +7,7 @@ SEPARATOR="---------------------"
 CLEAR_ACTUAL_FILES="NO"
 UPDATE_EXPECTED_FILES="NO"
 IGNORE_ORDER="NO"
+IGNORE_WHITESPACE="NO"
 EXPECTED=expected.txt
 ACTUAL=actual.txt
 
@@ -29,6 +30,7 @@ show_help() {
     echo "      Of the corresponding ${ACTUAL} files."
     echo "  -o  When testing, ignore the order of lines in the file."
     echo "      This is accomplished by sorting the expected and actual outputs before comparing"
+    echo "  -w  When testing, ignore extraneous whitespace differences between the expected and actual output."
     echo ""
 }
 
@@ -36,7 +38,7 @@ show_help() {
 # Process command-line arguments
 #
 OPTIND=1
-while getopts "h?t:s:cuo" opt; do
+while getopts "h?t:s:cuow" opt; do
     case "$opt" in
     h|\?)
         show_help
@@ -51,6 +53,8 @@ while getopts "h?t:s:cuo" opt; do
     u)  UPDATE_EXPECTED_FILES="YES"
         ;;
     o)  IGNORE_ORDER="YES"
+        ;;
+    w)  IGNORE_WHITESPACE="YES"
         ;;
     esac
 done
@@ -115,15 +119,19 @@ for TD in ${TEST_DIRECTORIES} ; do
         ${COMMAND} >> ${ACTUAL}
     done < command.txt
 
+    DIFF_CMD=diff
     OUTPUT_DUMP_CMD=cat
     if [ "${IGNORE_ORDER}" == "YES" ]; then
         OUTPUT_DUMP_CMD=sort
+    fi
+    if [ "${IGNORE_WHITESPACE}" == "YES" ]; then
+        DIFF_CMD="${DIFF_CMD} -b -w"
     fi
     
     ${OUTPUT_DUMP_CMD} ${EXPECTED} > /tmp/${EXPECTED}
     ${OUTPUT_DUMP_CMD} ${ACTUAL} > /tmp/${ACTUAL}
 
-    DIFF=$(diff /tmp/${EXPECTED} /tmp/${ACTUAL}) 
+    DIFF=$(${DIFF_CMD} /tmp/${EXPECTED} /tmp/${ACTUAL}) 
     if [ "${DIFF}" == "" ] 
     then
         echo "Test ${TEST_NAME} passed!"
@@ -132,7 +140,7 @@ for TD in ${TEST_DIRECTORIES} ; do
         echo "${SEPARATOR}"
         echo ""
         echo "${DIFF}"
-        diff -y /tmp/${EXPECTED} /tmp/${ACTUAL}
+        ${DIFF_CMD} -y /tmp/${EXPECTED} /tmp/${ACTUAL}
         echo ""
         echo "${SEPARATOR}"
     fi
