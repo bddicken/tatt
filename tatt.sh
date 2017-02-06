@@ -140,7 +140,7 @@ for TD in ${TEST_DIRECTORIES} ; do
         echo "${SEPARATOR}"
         echo ""
         echo "${DIFF}"
-        ${DIFF_CMD} -y /tmp/${EXPECTED} /tmp/${ACTUAL}
+        ${DIFF_CMD} -c /tmp/${EXPECTED} /tmp/${ACTUAL}
         echo ""
         echo "${SEPARATOR}"
     fi
