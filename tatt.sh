@@ -116,7 +116,7 @@ for TD in ${TEST_DIRECTORIES} ; do
     rm -f ${ACTUAL}
     while read LINE ; do
         COMMAND=${LINE/COMMAND_BASE_DIR/${EXE_DIR}}
-        ${COMMAND} >> ${ACTUAL}
+        eval ${COMMAND} >> ${ACTUAL}
     done < command.txt
 
     DIFF_CMD=diff
