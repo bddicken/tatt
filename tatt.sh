@@ -125,7 +125,7 @@ for TD in ${TEST_DIRECTORIES} ; do
         OUTPUT_DUMP_CMD=sort
     fi
     if [ "${IGNORE_WHITESPACE}" == "YES" ]; then
-        DIFF_CMD="${DIFF_CMD} -b -w"
+        DIFF_CMD="${DIFF_CMD} -b -w -B"
     fi
     
     ${OUTPUT_DUMP_CMD} ${EXPECTED} > /tmp/${EXPECTED}
