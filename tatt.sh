@@ -8,6 +8,7 @@ CLEAR_ACTUAL_FILES="NO"
 UPDATE_EXPECTED_FILES="NO"
 IGNORE_ORDER="NO"
 IGNORE_WHITESPACE="NO"
+IGNORE_DIGITS="NO"
 EXPECTED=expected.txt
 ACTUAL=actual.txt
 
@@ -31,6 +32,7 @@ show_help() {
     echo "  -o  When testing, ignore the order of lines in the file."
     echo "      This is accomplished by sorting the expected and actual outputs before comparing"
     echo "  -w  When testing, ignore extraneous whitespace differences between the expected and actual output."
+    echo "  -d  Ignore differences in digits (0-9) when diffing output files"
     echo ""
 }
 
@@ -38,7 +40,7 @@ show_help() {
 # Process command-line arguments
 #
 OPTIND=1
-while getopts "h?t:s:cuow" opt; do
+while getopts "h?t:s:cuowd" opt; do
     case "$opt" in
     h|\?)
         show_help
@@ -55,6 +57,8 @@ while getopts "h?t:s:cuow" opt; do
     o)  IGNORE_ORDER="YES"
         ;;
     w)  IGNORE_WHITESPACE="YES"
+        ;;
+    d)  IGNORE_DIGITS="YES"
         ;;
     esac
 done
@@ -126,6 +130,9 @@ for TD in ${TEST_DIRECTORIES} ; do
     fi
     if [ "${IGNORE_WHITESPACE}" == "YES" ]; then
         DIFF_CMD="${DIFF_CMD} -b -w -B"
+    fi
+    if [ "${IGNORE_DIGITS}" == "YES" ]; then
+        DIFF_CMD="${DIFF_CMD} -I [0-9]"
     fi
     
     ${OUTPUT_DUMP_CMD} ${EXPECTED} > /tmp/${EXPECTED}
